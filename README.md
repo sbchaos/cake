@@ -22,3 +22,5 @@ All packages:    122.1 MB (Reported by apt)
 Optional pkgs:    45.2 MB
 Cache:              0.0 B (/var/lib/apt/lists/)
 ```
+
+Leaves `image.tar` and `image/` artifact in the present working directory, need cleaning manually.
