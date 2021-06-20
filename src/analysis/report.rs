@@ -1,0 +1,86 @@
+use crate::analysis::efficiency::get_wasted_bytes;
+use crate::ofs::ofs::OverlayFs;
+use crate::ofs::utils::size_human;
+use crate::style::{bold, green, red, yellow};
+use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::{BufReader, Read, Write};
+use super::pkg_manager::Manager;
+
+#[derive(Serialize, Deserialize)]
+pub struct AnalysisReport {
+    pub score: u64,
+    pub wasted_space: u64,
+    pub total_space: u64,
+    pub ofs: OverlayFs,
+    pub image: String,
+
+    pub managers: Vec<Manager>,
+}
+
+impl AnalysisReport {
+    pub fn create_analysis_report(
+        ofs: OverlayFs,
+        image: &str,
+        managers: Vec<Manager>,
+    ) -> AnalysisReport {
+        let waste = get_wasted_bytes(&ofs);
+        let pkg_waste: u64 = managers.iter().map(|m| m.waste_size).sum();
+        let size = ofs.size();
+
+        let score = ((size - (waste + pkg_waste)) * 100) / size;
+
+        AnalysisReport {
+            score,
+            wasted_space: waste + pkg_waste,
+            total_space: size,
+            ofs,
+            image: image.to_string(),
+            managers,
+        }
+    }
+
+    pub fn save_report_as_json(&self) {
+        let result = serde_json::to_string(&self).unwrap();
+        let mut file = File::create(format!("{}_report.json", self.image)).unwrap();
+        file.write_all(result.as_ref()).unwrap();
+    }
+
+    pub fn create_report_from_json(image: &str) -> AnalysisReport {
+        let file = File::open(format!("{}_report.json", image)).unwrap();
+        let mut buf_reader = BufReader::new(file);
+
+        let mut contents = String::new();
+        buf_reader.read_to_string(&mut contents).unwrap();
+
+        serde_json::from_str(&contents).unwrap()
+    }
+
+    pub fn show_report(&self) {
+        println!();
+        println!("{}", bold("Analysis Report:"));
+        println!("  Efficiency score: {} %", self.color_score());
+        println!("  Total size: {}", size_human(self.total_space),);
+        println!("  Wasted Space: {}", size_human(self.wasted_space),);
+
+        println!();
+        println!("{}", bold("Inefficient Files:"));
+        println!("Count  Wasted Space  File Path");
+
+        println!();
+        println!("{}", bold("Packages:"));
+        for mngr in self.managers.iter() {
+            mngr.show_report();
+        }
+    }
+
+    fn color_score(&self) -> String {
+        let score_str = self.score.to_string();
+        if self.score > 90 {
+            return green(&score_str);
+        } else if self.score > 70 {
+            return yellow(&score_str);
+        }
+        red(&score_str)
+    }
+}
