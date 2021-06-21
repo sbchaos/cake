@@ -1,29 +1,57 @@
-use crate::ofs::file_info::FileInfo;
 use crate::ofs::ofs::OverlayFs;
+use serde::{Deserialize, Serialize};
 
-pub fn list_multiple_versions(ofs: &OverlayFs) -> Vec<&FileInfo> {
-    let mut multiple_versions: Vec<&FileInfo> = vec![];
+#[derive(Serialize, Deserialize)]
+pub struct Info {
+    pub path: String,
+    pub count: usize,
+    pub wasted_size: u64,
+}
+
+pub struct Efficiency<'a> {
+    ofs: &'a OverlayFs,
+    duplicates: Vec<Info>
+}
+
+pub fn list_multiple_versions(ofs: &OverlayFs) -> Vec<Info> {
+    let mut multiple_versions: Vec<Info> = vec![];
 
     for file in ofs.entries() {
         if !file.versions.is_empty() {
-            multiple_versions.push(file);
+            let ver = file.versions.last().unwrap();
+            let wasted = if ver.deleted {
+                file.total_size
+            } else {
+                file.total_size - ver.size
+            };
+            let i = Info {
+                path: format!("{}{}", file.path, file.name),
+                count: file.versions.len() + 1,
+                wasted_size: wasted
+            };
+            multiple_versions.push(i);
         }
     }
+    multiple_versions.sort_by(|a, b| b.wasted_size.cmp(&a.wasted_size));
     multiple_versions
 }
 
-pub fn get_wasted_bytes(ofs: &OverlayFs) -> u64 {
-    list_multiple_versions(ofs)
-        .iter()
-        .map(|&fl| {
-            let ver = fl.versions.last().unwrap();
-            if ver.deleted {
-                fl.total_size
-            } else {
-                fl.total_size - ver.size
-            }
-        })
-        .sum()
+impl <'a> Efficiency<'a> {
+    pub fn new(ofs: &OverlayFs) -> Efficiency {
+        Efficiency {
+            ofs,
+            duplicates: list_multiple_versions(ofs),
+        }
+    }
+
+    pub fn get_wasted_bytes(&self) -> u64 {
+            self.duplicates.iter().map(|i| i.wasted_size)
+            .sum()
+    }
+
+    pub fn get_duplicates(self) -> Vec<Info> {
+        self.duplicates
+    }
 }
 
 #[cfg(test)]

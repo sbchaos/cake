@@ -1,4 +1,4 @@
-use crate::analysis::efficiency::get_wasted_bytes;
+use crate::analysis::efficiency::{Info, Efficiency};
 use crate::ofs::ofs::OverlayFs;
 use crate::ofs::utils::size_human;
 use crate::style::{bold, green, red, yellow};
@@ -16,6 +16,7 @@ pub struct AnalysisReport {
     pub image: String,
 
     pub managers: Vec<Manager>,
+    pub dup_files: Vec<Info>,
 }
 
 impl AnalysisReport {
@@ -24,11 +25,13 @@ impl AnalysisReport {
         image: &str,
         managers: Vec<Manager>,
     ) -> AnalysisReport {
-        let waste = get_wasted_bytes(&ofs);
+        let eff = Efficiency::new(&ofs);
+        let waste = eff.get_wasted_bytes();
         let pkg_waste: u64 = managers.iter().map(|m| m.waste_size).sum();
         let size = ofs.size();
 
         let score = ((size - (waste + pkg_waste)) * 100) / size;
+        let dup_files  = eff.get_duplicates();
 
         AnalysisReport {
             score,
@@ -37,6 +40,7 @@ impl AnalysisReport {
             ofs,
             image: image.to_string(),
             managers,
+            dup_files,
         }
     }
 
@@ -66,6 +70,9 @@ impl AnalysisReport {
         println!();
         println!("{}", bold("Inefficient Files:"));
         println!("Count  Wasted Space  File Path");
+        for i in self.dup_files.iter() {
+            println!("{:>5}  {:>12}  {}", i.count, size_human(i.wasted_size), i.path);
+        }
 
         println!();
         println!("{}", bold("Packages:"));

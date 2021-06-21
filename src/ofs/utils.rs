@@ -8,7 +8,7 @@ pub const LAST_ITEM: &str = "└─";
 pub fn size_human(size: u64) -> String {
     let mut sizef: f64 = size as f64;
     let mut index: usize = 0;
-    let max = 1024_f64;
+    let max = 1000_f64;
     while sizef > max {
         sizef /= max;
         index += 1;
