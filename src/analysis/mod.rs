@@ -1,3 +1,3 @@
 mod efficiency;
-pub mod report;
 pub mod pkg_manager;
+pub mod report;

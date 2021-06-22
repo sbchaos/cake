@@ -1,5 +1,5 @@
-use crate::packages::deps::{Package, Cache};
 use crate::ofs::utils::size_human;
+use crate::packages::deps::{Cache, Package};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]

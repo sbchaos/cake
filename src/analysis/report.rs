@@ -1,11 +1,11 @@
-use crate::analysis::efficiency::{Info, Efficiency};
+use super::pkg_manager::Manager;
+use crate::analysis::efficiency::{Efficiency, Info};
 use crate::ofs::ofs::OverlayFs;
 use crate::ofs::utils::size_human;
 use crate::style::{bold, green, red, yellow};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
-use super::pkg_manager::Manager;
 
 #[derive(Serialize, Deserialize)]
 pub struct AnalysisReport {
@@ -31,7 +31,7 @@ impl AnalysisReport {
         let size = ofs.size();
 
         let score = ((size - (waste + pkg_waste)) * 100) / size;
-        let dup_files  = eff.get_duplicates();
+        let dup_files = eff.get_duplicates();
 
         AnalysisReport {
             score,
@@ -71,7 +71,12 @@ impl AnalysisReport {
         println!("{}", bold("Inefficient Files:"));
         println!("Count  Wasted Space  File Path");
         for i in self.dup_files.iter() {
-            println!("{:>5}  {:>12}  {}", i.count, size_human(i.wasted_size), i.path);
+            println!(
+                "{:>5}  {:>12}  {}",
+                i.count,
+                size_human(i.wasted_size),
+                i.path
+            );
         }
 
         println!();

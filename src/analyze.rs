@@ -1,7 +1,7 @@
 use log::{info, trace};
 
-use crate::analysis::report::{AnalysisReport};
 use crate::analysis::pkg_manager::Manager;
+use crate::analysis::report::AnalysisReport;
 use crate::docker;
 use crate::image::image_tar::{extract_image_tar, read_tar_layer};
 use crate::image::inspect::ImageInspect;

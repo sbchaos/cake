@@ -8,9 +8,8 @@ pub struct Info {
     pub wasted_size: u64,
 }
 
-pub struct Efficiency<'a> {
-    ofs: &'a OverlayFs,
-    duplicates: Vec<Info>
+pub struct Efficiency {
+    duplicates: Vec<Info>,
 }
 
 pub fn list_multiple_versions(ofs: &OverlayFs) -> Vec<Info> {
@@ -27,7 +26,7 @@ pub fn list_multiple_versions(ofs: &OverlayFs) -> Vec<Info> {
             let i = Info {
                 path: format!("{}{}", file.path, file.name),
                 count: file.versions.len() + 1,
-                wasted_size: wasted
+                wasted_size: wasted,
             };
             multiple_versions.push(i);
         }
@@ -36,17 +35,15 @@ pub fn list_multiple_versions(ofs: &OverlayFs) -> Vec<Info> {
     multiple_versions
 }
 
-impl <'a> Efficiency<'a> {
+impl Efficiency {
     pub fn new(ofs: &OverlayFs) -> Efficiency {
         Efficiency {
-            ofs,
             duplicates: list_multiple_versions(ofs),
         }
     }
 
     pub fn get_wasted_bytes(&self) -> u64 {
-            self.duplicates.iter().map(|i| i.wasted_size)
-            .sum()
+        self.duplicates.iter().map(|i| i.wasted_size).sum()
     }
 
     pub fn get_duplicates(self) -> Vec<Info> {
@@ -58,7 +55,7 @@ impl <'a> Efficiency<'a> {
 mod tests {
     use crate::analysis::efficiency::list_multiple_versions;
     use crate::ofs::directory::ODirectory;
-    use crate::ofs::file_info::{FileInfo};
+    use crate::ofs::file_info::FileInfo;
     use crate::ofs::ofs::OverlayFs;
 
     #[test]
