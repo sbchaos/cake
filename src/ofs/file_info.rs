@@ -59,6 +59,7 @@ impl FileInfo {
 #[cfg(test)]
 mod tests {
     use super::{FileInfo, VersionFile};
+    use crate::ofs::ofs::OverlayFs;
 
     #[test]
     fn adds_version_for_a_file() {
@@ -126,7 +127,7 @@ mod tests {
         let result = serde_json::to_string(&multi).unwrap();
         assert_eq!(
             result,
-            r#"{"name":"file1","size":50,"layer":"lay1","path":"/","total_size":450,"versions":[{"deleted":false,"size":400,"layer":"lay2"}]}"#
+            r#"{"name":"file1","size":50,"layer_id":"lay1","path":"/","total_size":450,"versions":[{"deleted":false,"size":400,"layer_id":"lay2"}]}"#
         );
     }
 }

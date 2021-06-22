@@ -58,17 +58,18 @@ impl <'a> Efficiency<'a> {
 mod tests {
     use crate::analysis::efficiency::list_multiple_versions;
     use crate::ofs::directory::ODirectory;
-    use crate::ofs::file_info::{FileInfo, MultiVersionInfo};
+    use crate::ofs::file_info::{FileInfo};
     use crate::ofs::ofs::OverlayFs;
 
     #[test]
     fn list_all_multi_version() {
-        let ofs_json = "{\"root\":{\"name\":\"/\",\"size\": 8905,\"files\":{\"m1\": {\"Multi\":{\"name\":\"m1\", \"total_size\": 20, \"path\": \"/\", \"versions\": []}}, \"s1\": {\"Single\":{\"name\":\"s1\", \"size\":0, \"layer\":\"abc\", \"path\":\"/\"}}},\"directories\":{}, \"path\": \"/\", \"layer\": \"abc\"}}";
+        let ofs_json = r#"{"root":{"name":"/","size":0,"files":{"file1":{"name":"file1","size":400,"layer_id":"lay1","path":"","total_size":450,"versions":[{"deleted":false,"size":50,"layer_id":"lay2"}]}},"directories":{},"deleted":false},"layers":{}}"#;
+
         let ofs: OverlayFs = serde_json::from_str(&ofs_json).unwrap();
 
-        let mfs = list_multiple_versions(&ofs);
-        assert_eq!(mfs.len(), 1);
-        assert_eq!(mfs[0].name, "m1");
-        assert_eq!(mfs[0].total_size, 20);
+        let infos = list_multiple_versions(&ofs);
+        assert_eq!(infos.len(), 1);
+        assert_eq!(infos[0].path, "file1");
+        assert_eq!(infos[0].wasted_size, 400);
     }
 }

@@ -90,7 +90,6 @@ impl<'a> PackageManager for ArchiveManager<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::ofs::file_info::OFile;
     use crate::ofs::ofs::OverlayFs;
     use crate::packages::archive::list_archives;
     use log::LevelFilter::Off;
@@ -117,9 +116,9 @@ mod tests {
         let archives = list_archives(&ofs);
         println!("{:?}", archives);
         assert_eq!(archives.len(), 4);
-        assert_eq!(archives.iter().any(|&f| f.name() == "arch.zip"), true);
-        assert_eq!(archives.iter().any(|&f| f.name() == "java.tar.gz"), true);
-        assert_eq!(archives.iter().any(|&f| f.name() == "python.tar.bz"), true);
-        assert_eq!(archives.iter().any(|&f| f.name() == "image.tar"), true);
+        assert_eq!(archives.iter().any(|&f| f.name == "arch.zip"), true);
+        assert_eq!(archives.iter().any(|&f| f.name == "java.tar.gz"), true);
+        assert_eq!(archives.iter().any(|&f| f.name == "python.tar.bz"), true);
+        assert_eq!(archives.iter().any(|&f| f.name == "image.tar"), true);
     }
 }

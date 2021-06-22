@@ -64,7 +64,7 @@ fn parse_status_file(status: &str) -> Vec<Package> {
                             .unwrap()
                             .parse::<u64>()
                             .unwrap_or(0);
-                        size = size_in_kb * 1024;
+                        size = size_in_kb * 1000;
                     } else if p.starts_with("Priority: optional") {
                         optional = true;
                     }
@@ -167,11 +167,11 @@ Depends: libc6 (>= 2.14)"#;
         assert_eq!(installed[0].name, "less");
         assert_eq!(installed[0].version, "551-2");
         assert_eq!(installed[0].optional, false);
-        assert_eq!(installed[0].size, 296);
+        assert_eq!(installed[0].size, 296000);
 
         assert_eq!(installed[1].name, "libacl1");
         assert_eq!(installed[1].version, "2.2.53-10");
         assert_eq!(installed[1].optional, true);
-        assert_eq!(installed[1].size, 71);
+        assert_eq!(installed[1].size, 71000);
     }
 }
