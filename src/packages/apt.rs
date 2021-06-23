@@ -10,6 +10,9 @@ const CACHE_DIR: &str = "/var/cache/apt/";
 const LISTS_DIR: &str = "/var/lib/apt/lists/";
 const STATUS_FILE: &str = "/var/lib/dpkg/status";
 
+// Adding license information for debian packages is not trivial, not in status file
+// https://askubuntu.com/questions/88403/how-to-list-all-my-packages-from-command-line-which-can-show-package-name-licen
+
 pub struct DebianPackageManager<'a> {
     ofs: &'a OverlayFs,
     packages: Vec<Package>,
