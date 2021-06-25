@@ -15,7 +15,7 @@ use crate::packages::deps::PackageManager;
 use crate::packages::rpm::RPMPackageManager;
 use std::path::Path;
 
-pub fn analyze_image(image: &str, pkgs: bool) {
+pub fn analyze_image(image: &str, pkgs: bool, tree: bool) {
     if image.is_empty() {
         panic!("No image file present")
     }
@@ -45,6 +45,11 @@ pub fn analyze_image(image: &str, pkgs: bool) {
 
         overlayfs.update_sizes();
         overlayfs.save_tree_to_json(image);
+    }
+
+    if tree {
+        overlayfs.show_as_tree();
+        return;
     }
 
     let report = create_analysis_report(overlayfs, image);

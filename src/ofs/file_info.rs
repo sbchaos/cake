@@ -52,7 +52,7 @@ impl FileInfo {
     }
 
     pub fn show_file(&self) -> String {
-        format!("{} - {}", self.name, size_human(self.total_size))
+        format!("{} - ({})", self.name, size_human(self.total_size))
     }
 }
 

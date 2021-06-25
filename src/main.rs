@@ -32,6 +32,12 @@ fn main() {
                 .short('p')
                 .long("packages")
                 .takes_value(false),
+        ).arg(
+            Arg::new("tree")
+                .short('t')
+                .long("tree")
+                .hidden(true)
+                .takes_value(false),
         )
         .get_matches();
 
@@ -41,6 +47,7 @@ fn main() {
     trace!("Using IMAGE file: {}", image);
 
     let pkgs = matches.is_present("packages");
+    let tree = matches.is_present("tree");
 
-    analyze::analyze_image(image, pkgs);
+    analyze::analyze_image(image, pkgs, tree);
 }

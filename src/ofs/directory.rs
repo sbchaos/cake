@@ -106,7 +106,7 @@ impl ODirectory {
             println!("{}{} {} - {}", padding, marker, name, size_human(dir.size));
             dir.show_dir(levels + 1);
         }
-        for (_name, file) in self.files.iter() {
+        for file in self.files.values() {
             println!("{}{} {}", padding, marker, file.show_file());
         }
     }
