@@ -32,7 +32,8 @@ fn main() {
                 .short('p')
                 .long("packages")
                 .takes_value(false),
-        ).arg(
+        )
+        .arg(
             Arg::new("tree")
                 .short('t')
                 .long("tree")

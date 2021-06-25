@@ -16,10 +16,36 @@ use crate::packages::rpm::RPMPackageManager;
 use std::path::Path;
 
 pub fn analyze_image(image: &str, pkgs: bool, tree: bool) {
-    if image.is_empty() {
-        panic!("No image file present")
+    let report = match read_report(image) {
+        Some(report) => report,
+        None => {
+            let overlayfs = create_ofs(image);
+            create_analysis_report(overlayfs, image)
+        }
+    };
+
+    if tree {
+        report.ofs.show_as_tree();
+        return;
     }
 
+    if pkgs {
+        report.show_packages();
+    } else {
+        report.show_report();
+    }
+}
+
+fn read_report(image: &str) -> Option<AnalysisReport> {
+    let image_json = format!("{}_report.json", image);
+    if Path::new(&image_json).exists() {
+        trace!("Loaded analysis report from cache: {}_report", image);
+        return Some(AnalysisReport::create_report_from_json(image));
+    }
+    None
+}
+
+fn create_ofs(image: &str) -> OverlayFs {
     let mut overlayfs = OverlayFs::new();
     let image_json = format!("{}.json", image);
 
@@ -46,18 +72,7 @@ pub fn analyze_image(image: &str, pkgs: bool, tree: bool) {
         overlayfs.update_sizes();
         overlayfs.save_tree_to_json(image);
     }
-
-    if tree {
-        overlayfs.show_as_tree();
-        return;
-    }
-
-    let report = create_analysis_report(overlayfs, image);
-    if pkgs {
-        report.show_packages();
-    } else {
-        report.show_report();
-    }
+    overlayfs
 }
 
 fn fetch(id: &str) {
