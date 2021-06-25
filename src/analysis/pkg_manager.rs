@@ -36,6 +36,12 @@ impl Manager {
     }
 
     pub fn show_packages(&self) {
+        if self.packages.is_empty() {
+            return;
+        }
+        println!();
+        println!("For {}", self.name);
+        println!("{:>10}\t{:<20}\tName", "Size", "Version");
         for pkg in self.packages.iter() {
             pkg.show_info();
         }

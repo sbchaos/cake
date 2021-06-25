@@ -26,6 +26,13 @@ fn main() {
                 .about("the input image to use")
                 .required(true),
         )
+        .arg(
+            Arg::new("packages")
+                .about("the list of packages installed")
+                .short('p')
+                .long("packages")
+                .takes_value(false),
+        )
         .get_matches();
 
     logs::setup_logging(&matches);
@@ -33,5 +40,7 @@ fn main() {
     let image = matches.value_of("IMAGE").unwrap();
     trace!("Using IMAGE file: {}", image);
 
-    analyze::analyze_image(image);
+    let pkgs = matches.is_present("packages");
+
+    analyze::analyze_image(image, pkgs);
 }

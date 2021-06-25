@@ -15,7 +15,7 @@ use crate::packages::deps::PackageManager;
 use crate::packages::rpm::RPMPackageManager;
 use std::path::Path;
 
-pub fn analyze_image(image: &str) {
+pub fn analyze_image(image: &str, pkgs: bool) {
     if image.is_empty() {
         panic!("No image file present")
     }
@@ -48,7 +48,11 @@ pub fn analyze_image(image: &str) {
     }
 
     let report = create_analysis_report(overlayfs, image);
-    report.show_report();
+    if pkgs {
+        report.show_packages();
+    } else {
+        report.show_report();
+    }
 }
 
 fn fetch(id: &str) {

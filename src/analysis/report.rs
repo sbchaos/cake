@@ -86,6 +86,14 @@ impl AnalysisReport {
         }
     }
 
+    pub fn show_packages(&self) {
+        println!();
+        println!("{}", bold("Packages:"));
+        for mngr in self.managers.iter() {
+            mngr.show_packages();
+        }
+    }
+
     fn color_score(&self) -> String {
         let score_str = self.score.to_string();
         if self.score > 90 {
