@@ -1,3 +1,4 @@
+use crate::image::Image;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Error;
@@ -17,8 +18,8 @@ impl Manifest {
         manifests[0].to_owned()
     }
 
-    pub fn for_image_path(image_id: &str) -> Result<Manifest, Error> {
-        let manifest_path = format!("{}/manifest.json", image_id);
+    pub fn for_image_path(image: &Image) -> Result<Manifest, Error> {
+        let manifest_path = format!("{}/manifest.json", image.image_id);
         let mut input = File::open(manifest_path)?;
 
         let mut json = String::new();

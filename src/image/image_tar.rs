@@ -3,13 +3,14 @@ use std::fs::File;
 use tar::{Archive, EntryType};
 
 use super::super::ofs::ofs::OverlayFs;
+use crate::image::Image;
 use std::io::Read;
 
-pub fn extract_image_tar(id: &str) {
-    let file = File::open(format!("{}.tar", id)).unwrap();
+pub fn extract_image_tar(image: &Image) {
+    let file = File::open(image.tar_path()).unwrap();
     let mut archive = Archive::new(file);
 
-    archive.unpack(id).unwrap();
+    archive.unpack(image.dir_path()).unwrap();
 }
 
 pub fn read_tar_layer(ofs: &mut OverlayFs, path: &str, layer_id: &str) {

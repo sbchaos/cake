@@ -2,6 +2,7 @@
 // Keep dir info in memory, and only create a dir when any file > 1kb
 
 use super::directory::ODirectory;
+use crate::image::Image;
 use crate::ofs::file_info::FileInfo;
 use crate::ofs::layer::Layer;
 use crate::ofs::utils::split_last_entry;
@@ -63,14 +64,14 @@ impl OverlayFs {
         self.root.update_sizes();
     }
 
-    pub fn save_tree_to_json(&self, image: &str) {
+    pub fn save_tree_to_json(&self, image: &Image) {
         let result = serde_json::to_string(&self).unwrap();
-        let mut file = File::create(format!("{}.json", image)).unwrap();
+        let mut file = File::create(image.tree_path()).unwrap();
         file.write_all(result.as_ref()).unwrap();
     }
 
-    pub fn create_fs_from_json(image: &str) -> OverlayFs {
-        let file = File::open(format!("{}.json", image)).unwrap();
+    pub fn create_fs_from_json(image: &Image) -> OverlayFs {
+        let file = File::open(image.tree_path()).unwrap();
         let mut buf_reader = BufReader::new(file);
 
         let mut contents = String::new();

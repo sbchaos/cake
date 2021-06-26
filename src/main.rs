@@ -1,3 +1,4 @@
+use crate::image::Image;
 use clap::{App, Arg};
 use log::trace;
 
@@ -44,11 +45,13 @@ fn main() {
 
     logs::setup_logging(&matches);
 
-    let image = matches.value_of("IMAGE").unwrap();
-    trace!("Using IMAGE file: {}", image);
+    let img_str = matches.value_of("IMAGE").unwrap();
+    trace!("Using IMAGE file: {}", img_str);
 
     let pkgs = matches.is_present("packages");
     let tree = matches.is_present("tree");
+
+    let image = Image::from(img_str);
 
     analyze::analyze_image(image, pkgs, tree);
 }
