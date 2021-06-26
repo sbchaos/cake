@@ -6,8 +6,9 @@ use super::docker;
 use crate::image::Source::{Dir, Report, Tar, Tree};
 use log::trace;
 use std::path::Path;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Source {
     Report,
     Tree,
@@ -17,7 +18,7 @@ pub enum Source {
     None,
 }
 
-// Figure out if the image is coming from daemon, or tar or dir
+#[derive(Serialize, Deserialize)]
 pub struct Image {
     pub name: String,
     pub image_id: String,

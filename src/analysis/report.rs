@@ -6,6 +6,7 @@ use crate::style::{bold, green, red, yellow};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
+use crate::image::Image;
 
 #[derive(Serialize, Deserialize)]
 pub struct AnalysisReport {
@@ -13,7 +14,7 @@ pub struct AnalysisReport {
     pub wasted_space: u64,
     pub total_space: u64,
     pub ofs: OverlayFs,
-    pub image: String,
+    pub image: Image,
 
     pub managers: Vec<Manager>,
     pub dup_files: Vec<Info>,
@@ -22,7 +23,7 @@ pub struct AnalysisReport {
 impl AnalysisReport {
     pub fn create_analysis_report(
         ofs: OverlayFs,
-        image: &str,
+        image: Image,
         managers: Vec<Manager>,
     ) -> AnalysisReport {
         let eff = Efficiency::new(&ofs);
@@ -38,7 +39,7 @@ impl AnalysisReport {
             wasted_space: waste + pkg_waste,
             total_space: size,
             ofs,
-            image: image.to_string(),
+            image,
             managers,
             dup_files,
         }
@@ -46,12 +47,12 @@ impl AnalysisReport {
 
     pub fn save_report_as_json(&self) {
         let result = serde_json::to_string(&self).unwrap();
-        let mut file = File::create(format!("{}_report.json", self.image)).unwrap();
+        let mut file = File::create(self.image.report_path()).unwrap();
         file.write_all(result.as_ref()).unwrap();
     }
 
-    pub fn create_report_from_json(image: &str) -> AnalysisReport {
-        let file = File::open(format!("{}_report.json", image)).unwrap();
+    pub fn create_report_from_json(image: &Image) -> AnalysisReport {
+        let file = File::open(image.report_path()).unwrap();
         let mut buf_reader = BufReader::new(file);
 
         let mut contents = String::new();

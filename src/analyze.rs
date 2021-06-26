@@ -20,7 +20,7 @@ pub fn analyze_image(image: Image, pkgs: bool, tree: bool) {
         Some(report) => report,
         None => {
             let overlayfs = create_ofs(&image);
-            create_analysis_report(overlayfs, &image)
+            create_analysis_report(overlayfs, image)
         }
     };
 
@@ -40,7 +40,7 @@ fn read_report(image: &Image) -> Option<AnalysisReport> {
     let image_json = image.report_path();
     if Path::new(&image_json).exists() {
         trace!("Loaded analysis report from cache: {}", image_json);
-        return Some(AnalysisReport::create_report_from_json(&image_json));
+        return Some(AnalysisReport::create_report_from_json(image));
     }
     None
 }
@@ -81,7 +81,7 @@ fn fetch(image: &Image) {
     trace!("Image saved");
 }
 
-fn create_analysis_report(ofs: OverlayFs, image: &Image) -> AnalysisReport {
+fn create_analysis_report(ofs: OverlayFs, image: Image) -> AnalysisReport {
     let alpine_pkg = AlpinePackageManager::new(&ofs);
     let rpm_pkg = RPMPackageManager::new(&ofs, &image.image_id);
     let deb_pkg = DebianPackageManager::new(&ofs);
@@ -114,7 +114,7 @@ fn create_analysis_report(ofs: OverlayFs, image: &Image) -> AnalysisReport {
         },
     ];
 
-    let report = AnalysisReport::create_analysis_report(ofs, &image.image_id, pkg_managers);
+    let report = AnalysisReport::create_analysis_report(ofs, image, pkg_managers);
     report.save_report_as_json();
     report
 }
