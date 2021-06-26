@@ -5,7 +5,7 @@ use crate::analysis::report::AnalysisReport;
 use crate::docker;
 use crate::image::image_tar::{extract_image_tar, read_tar_layer};
 use crate::image::manifest::Manifest;
-use crate::image::Image;
+use crate::image::{Image, Source};
 use crate::ofs::layer::Layer;
 use crate::ofs::ofs::OverlayFs;
 use crate::packages::alpine::AlpinePackageManager;
@@ -13,16 +13,9 @@ use crate::packages::apt::DebianPackageManager;
 use crate::packages::archive::ArchiveManager;
 use crate::packages::deps::PackageManager;
 use crate::packages::rpm::RPMPackageManager;
-use std::path::Path;
 
 pub fn analyze_image(image: Image, pkgs: bool, tree: bool) {
-    let report = match read_report(&image) {
-        Some(report) => report,
-        None => {
-            let overlayfs = create_ofs(&image);
-            create_analysis_report(overlayfs, image)
-        }
-    };
+    let report = generate_analysis_report(image);
 
     if tree {
         report.ofs.show_as_tree();
@@ -36,41 +29,47 @@ pub fn analyze_image(image: Image, pkgs: bool, tree: bool) {
     }
 }
 
-fn read_report(image: &Image) -> Option<AnalysisReport> {
-    let image_json = image.report_path();
-    if Path::new(&image_json).exists() {
-        trace!("Loaded analysis report from cache: {}", image_json);
-        return Some(AnalysisReport::create_report_from_json(image));
-    }
-    None
-}
+fn generate_analysis_report(image: Image) -> AnalysisReport {
+    match image.source {
+        Source::Report => {
+            if let Ok(report) = AnalysisReport::create_report_from_json(&image) {
+                return report;
+            }
+        }
+        Source::Tree => {
+            if let Ok(ofs) = OverlayFs::create_fs_from_json(&image) {
+                return create_analysis_report(ofs, image);
+            }
+        }
+        Source::Dir => {}
+        Source::Tar => {
+            extract_image_tar(&image);
+        }
+        Source::Docker => {
+            fetch(&image);
+            extract_image_tar(&image);
+        }
+        Source::None => {
+            unreachable!("Should not generate report for no image")
+        }
+    };
 
-fn create_ofs(image: &Image) -> OverlayFs {
     let mut overlayfs = OverlayFs::new();
 
-    if Path::new(&image.tree_path()).exists() {
-        overlayfs = OverlayFs::create_fs_from_json(image);
-        trace!("Loaded from cache: {}", image.tree_path());
-    } else {
-        if !Path::new(&image.dir_path()).exists() {
-            fetch(image);
-            extract_image_tar(image);
-        }
+    let manifest = Manifest::for_image_path(&image).unwrap();
+    for (i, layer_path) in manifest.layers.iter().enumerate() {
+        let path = format!("{}/{}", image.image_id, layer_path);
+        trace!("path : {}", path);
+        let layer_id = format!("layer{}", i);
+        read_tar_layer(&mut overlayfs, &path, &layer_id);
 
-        let manifest = Manifest::for_image_path(image).unwrap();
-        for (i, layer_path) in manifest.layers.iter().enumerate() {
-            let path = format!("{}/{}", image.image_id, layer_path);
-            trace!("path : {}", path);
-            let layer_id = format!("layer{}", i);
-            read_tar_layer(&mut overlayfs, &path, &layer_id);
-
-            overlayfs.add_layer(Layer::new(layer_id, path));
-        }
-
-        overlayfs.update_sizes();
-        overlayfs.save_tree_to_json(image);
+        overlayfs.add_layer(Layer::new(layer_id, path));
     }
-    overlayfs
+
+    overlayfs.update_sizes();
+    overlayfs.save_tree_to_json(&image);
+
+    create_analysis_report(overlayfs, image)
 }
 
 fn fetch(image: &Image) {

@@ -70,14 +70,14 @@ impl OverlayFs {
         file.write_all(result.as_ref()).unwrap();
     }
 
-    pub fn create_fs_from_json(image: &Image) -> OverlayFs {
+    pub fn create_fs_from_json(image: &Image) -> serde_json::Result<OverlayFs> {
         let file = File::open(image.tree_path()).unwrap();
         let mut buf_reader = BufReader::new(file);
 
         let mut contents = String::new();
         buf_reader.read_to_string(&mut contents).unwrap();
 
-        serde_json::from_str(&contents).unwrap()
+        serde_json::from_str(&contents)
     }
 
     pub fn entries(&self) -> Vec<&FileInfo> {

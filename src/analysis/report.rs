@@ -1,12 +1,12 @@
 use super::pkg_manager::Manager;
 use crate::analysis::efficiency::{Efficiency, Info};
+use crate::image::Image;
 use crate::ofs::ofs::OverlayFs;
 use crate::ofs::utils::size_human;
 use crate::style::{bold, green, red, yellow};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
-use crate::image::Image;
 
 #[derive(Serialize, Deserialize)]
 pub struct AnalysisReport {
@@ -51,14 +51,14 @@ impl AnalysisReport {
         file.write_all(result.as_ref()).unwrap();
     }
 
-    pub fn create_report_from_json(image: &Image) -> AnalysisReport {
+    pub fn create_report_from_json(image: &Image) -> serde_json::Result<AnalysisReport> {
         let file = File::open(image.report_path()).unwrap();
         let mut buf_reader = BufReader::new(file);
 
         let mut contents = String::new();
         buf_reader.read_to_string(&mut contents).unwrap();
 
-        serde_json::from_str(&contents).unwrap()
+        serde_json::from_str(&contents)
     }
 
     pub fn show_report(&self) {

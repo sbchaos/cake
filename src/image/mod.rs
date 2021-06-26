@@ -5,8 +5,8 @@ pub mod manifest;
 use super::docker;
 use crate::image::Source::{Dir, Report, Tar, Tree};
 use log::trace;
-use std::path::Path;
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Source {
