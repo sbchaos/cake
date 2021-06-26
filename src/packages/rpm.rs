@@ -5,6 +5,7 @@ use crate::packages::util::get_single_version_in_dir;
 use log::trace;
 use std::cmp::Ordering;
 
+#[allow(dead_code)]
 const RPM_MACROS: &str = "/usr/lib/rpm/macros";
 
 //RPM command to extract packages from the rpm database
@@ -31,6 +32,7 @@ impl<'a> RPMPackageManager<'a> {
         RPMPackageManager { ofs, image }
     }
 
+    #[allow(dead_code)]
     pub fn get_packages_from_docker() {
         // docker run --rm -it alpine-pkg /usr/bin/apt list --installed
     }

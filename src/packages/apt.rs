@@ -26,6 +26,7 @@ impl<'a> DebianPackageManager<'a> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_packages_from_docker() {
         // docker run --rm -it alpine-pkg /usr/bin/apt list --installed
     }

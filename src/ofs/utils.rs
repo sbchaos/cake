@@ -1,8 +1,10 @@
 const SIZE: [&str; 5] = ["B", "KB", "MB", "GB", "TB"];
 
+#[allow(dead_code)]
 pub const NO_BRANCH_SPACE: &str = "    ";
 pub const BRANCH_SPACE: &str = "│   ";
 pub const MIDDLE_ITEM: &str = "├─";
+#[allow(dead_code)]
 pub const LAST_ITEM: &str = "└─";
 
 pub fn size_human(size: u64) -> String {

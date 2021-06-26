@@ -32,6 +32,8 @@ impl<'a> ArchiveManager<'a> {
             packages: get_packages(ofs),
         }
     }
+
+    #[allow(dead_code)]
     pub fn get_packages_from_docker() {
         // find / -type f '(' -name "*.zip" -o -name "*.tar*" ')' -printf '%P %k\n'
         // docker run --rm -it alpine-pkg /bin/find .

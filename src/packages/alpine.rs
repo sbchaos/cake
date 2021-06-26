@@ -17,6 +17,7 @@ impl<'a> AlpinePackageManager<'a> {
         AlpinePackageManager { ofs }
     }
 
+    #[allow(dead_code)]
     pub fn get_packages_from_docker() {
         // docker run --rm -it alpine-pkg /sbin/apk -v info
     }
