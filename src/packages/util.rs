@@ -41,6 +41,8 @@ pub fn get_single_version_in_dir(ofs: &OverlayFs, path: &str) -> u64 {
         for e in dir.get_entries() {
             if e.versions.is_empty() {
                 wasted += e.size;
+            } else if let Some(last) = e.versions.last() {
+                wasted += last.size
             }
         }
     }
