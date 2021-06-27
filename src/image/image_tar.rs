@@ -6,6 +6,7 @@ use super::super::ofs::ofs::OverlayFs;
 use crate::image::Image;
 use std::io::Read;
 
+// TODO: move this file out to a more suitable place
 pub fn extract_image_tar(image: &Image) {
     let file = File::open(image.tar_path()).unwrap();
     let mut archive = Archive::new(file);

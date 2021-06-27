@@ -1,6 +1,7 @@
 pub mod image_tar;
 pub mod inspect;
 pub mod manifest;
+pub mod config;
 
 use super::docker;
 use crate::image::Source::{Dir, Report, Tar, Tree};
