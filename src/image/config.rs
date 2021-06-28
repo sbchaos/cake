@@ -1,8 +1,7 @@
-use crate::image::Image;
+use crate::image::manifest::Manifest;
+use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Read;
-use serde::{Deserialize, Serialize};
-use crate::image::manifest::Manifest;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -30,8 +29,8 @@ pub struct ImageConfig {
 }
 
 impl ImageConfig {
-    pub fn for_path(image: &Image, manifest: &Manifest) -> serde_json::Result<ImageConfig> {
-        let config_path = format!("{}/{}", image.image_id, manifest.config);
+    pub fn for_path(image_id: &str, manifest: &Manifest) -> serde_json::Result<ImageConfig> {
+        let config_path = format!("{}/{}", image_id, manifest.config);
         let mut input = File::open(config_path).unwrap();
 
         let mut json = String::new();
@@ -39,6 +38,4 @@ impl ImageConfig {
 
         serde_json::from_str(&json)
     }
-
-    pub fn layers(&self, manifest: &Manifest) {}
 }

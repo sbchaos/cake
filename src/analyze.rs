@@ -13,7 +13,6 @@ use crate::packages::apt::DebianPackageManager;
 use crate::packages::archive::ArchiveManager;
 use crate::packages::deps::PackageManager;
 use crate::packages::rpm::RPMPackageManager;
-use crate::image::config::ImageConfig;
 
 pub fn analyze_image(image: Image, pkgs: bool, tree: bool) {
     let report = generate_analysis_report(image);
@@ -57,9 +56,8 @@ fn generate_analysis_report(image: Image) -> AnalysisReport {
 
     let mut overlayfs = OverlayFs::new();
 
-    let manifest = Manifest::for_image_path(&image).unwrap();
-    let config = ImageConfig::for_path(&image, &manifest);
-    trace!("Config: {:?}", config);
+    let manifest = Manifest::for_image_path(&image.image_id).unwrap();
+    trace!("manifest: {:?}", manifest);
     for (i, layer_path) in manifest.layers.iter().enumerate() {
         let path = format!("{}/{}", image.image_id, layer_path);
         trace!("path : {}", path);
